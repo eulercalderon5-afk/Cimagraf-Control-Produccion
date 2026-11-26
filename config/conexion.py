@@ -1,26 +1,27 @@
-﻿"""Gestion centralizada de conexiones con PostgreSQL."""
-import os
+﻿
+"""Gestion centralizada de conexiones con SQLite."""
 
-import psycopg
-from dotenv import load_dotenv
-
-# Carga las variables del archivo .env
-load_dotenv()
+import sqlite3
+from contextlib import contextmanager
+from pathlib import Path
 
 
+RUTA_BD = Path(__file__).resolve().parent.parent / "database" / "cimagraf.db"
+
+
+@contextmanager
 def obtener_conexion():
-    """Abre una conexion con PostgreSQL."""
-    url = os.getenv("DATABASE_URL")
+    """Abre, confirma o revierte y cierra la conexion."""
 
-    if not url:
-        raise RuntimeError(
-            "No se encontro DATABASE_URL. Configura el archivo .env."
-        )
+    conexion = sqlite3.connect(RUTA_BD, timeout=10)
+    conexion.row_factory = sqlite3.Row
+    conexion.execute("PRAGMA foreign_keys = ON")
 
     try:
-        return psycopg.connect(url, connect_timeout=5)
-    except psycopg.OperationalError as error:
-        raise RuntimeError(
-            "No se pudo conectar con PostgreSQL. "
-            "Verifica que el servidor este activo y las credenciales sean correctas."
-        ) from error
+        yield conexion
+        conexion.commit()
+    except Exception:
+        conexion.rollback()
+        raise
+    finally:
+        conexion.close()
