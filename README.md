@@ -1,3 +1,4 @@
+ HEAD
 # Cimagraf – Sistema de control de producción
 
 Prototipo académico modular en Python con PostgreSQL. Gestiona órdenes, calcula unidades buenas, merma y duración, permite consultar/modificar/eliminar, registra auditoría y exporta reportes.
@@ -83,3 +84,7 @@ Cada integrante trabaja en su rama, realiza commits con cambios reales y abre un
 
 ## 10. Limitaciones y mejoras futuras
 Es un prototipo de consola académico. Para un despliegue real se necesitarían, entre otros, gestión de roles/permisos, recuperación de contraseña, política de copias de seguridad, configuración segura de secretos, pruebas de integración automatizadas y una interfaz gráfica/web. El PDF requiere la dependencia ReportLab instalada.
+
+# Cimagraf-Control-Produccion
+Sistema modular para el control de órdenes de producción, registro de merma, tiempos de máquina, auditoría y exportación de información.
+ 4f9e6dd2fff0b91499505df50ef5f2017ba45494
