@@ -1,17 +1,14 @@
- HEAD
+
 # Cimagraf – Sistema de control de producción
 
-Prototipo académico modular en Python con PostgreSQL. Gestiona órdenes, calcula unidades buenas, merma y duración, permite consultar/modificar/eliminar, registra auditoría y exporta reportes.
-
-> Los datos de ejemplo son simulados para pruebas. No representan mediciones reales de Cimagraf salvo que el equipo los reemplace por datos verificados y autorizados.
+Sistema académico modular desarrollado en Python y PostgreSQL para gestionar órdenes de producción, calcular unidades buenas, merma y duración, consultar registros, generar reportes y mantener una auditoría de cambios.
 
 ## 1. Requisitos
 - Python 3.10 o superior.
-- PostgreSQL 15 o superior (también puede utilizarse una versión compatible más reciente).
+- PostgreSQL 15 o superior.
 - Git.
 
-## 2. Preparar el proyecto en Windows
-Abre la carpeta del proyecto en Visual Studio Code o abre una terminal dentro de ella.
+## 2. Instalación en Windows
 
 ```powershell
 py -m venv .venv
@@ -19,72 +16,79 @@ py -m venv .venv
 py -m pip install -r requirements.txt
 ```
 
-Si PowerShell bloquea la activación, puedes ejecutar directamente `.venv\Scripts\python.exe` y `.venv\Scripts\pip.exe` sin cambiar políticas del sistema.
+Crea una base de datos llamada `cimagraf` en PostgreSQL.
 
-Crea una base de datos vacía llamada `cimagraf` desde pgAdmin o psql. Copia `.env.example` como `.env` y reemplaza `TU_CLAVE` por la contraseña local del usuario PostgreSQL:
+Copia `.env.example` como `.env` y configura la conexión:
 
 ```text
 DATABASE_URL=postgresql://postgres:TU_CLAVE@localhost:5432/cimagraf
 ```
 
-No subas `.env` a GitHub. Está excluido mediante `.gitignore`.
+No compartas ni subas el archivo `.env` a GitHub.
 
-## 3. Crear tablas y primer usuario
+## 3. Inicialización
 
 ```powershell
 py -m database.inicializar
 ```
 
-El programa crea las tablas, índices y solicita crear el primer usuario. La contraseña se almacena con PBKDF2-HMAC-SHA256 y una sal aleatoria; no se guarda en texto plano.
+Este proceso crea las tablas y permite registrar el primer usuario.
 
-## 4. Ejecutar
+## 4. Ejecución
 
 ```powershell
 py main.py
 ```
 
-## 5. Pruebas automáticas
+## 5. Pruebas
 
 ```powershell
 py -m unittest discover -s tests -v
 ```
 
-Las pruebas de servicios no requieren conexión a PostgreSQL. Para validar el sistema completo, también se debe probar el inicio de sesión y las operaciones CRUD contra una base PostgreSQL local.
+## 6. Arquitectura modular
 
-## 6. Arquitectura
-- `views/`: entrada y presentación en consola.
-- `controllers/`: casos de uso y coordinación de operaciones.
-- `services/`: validaciones, cálculos, autenticación, ordenamiento, auditoría y exportación.
-- `models/`: estructura de los datos.
-- `config/`: conexión a PostgreSQL.
-- `database/`: esquema e inicialización.
+- `views/`: presentación e interacción con el usuario.
+- `controllers/`: coordinación de las operaciones.
+- `services/`: validaciones, cálculos, autenticación, ordenamiento, auditoría y exportaciones.
+- `models/`: estructuras de datos.
+- `config/`: configuración de conexión.
+- `database/`: esquema e inicialización de PostgreSQL.
 - `tests/`: pruebas automatizadas.
 
-La solución utiliza una arquitectura de tres capas: presentación, lógica de negocio y datos. Los controladores separan los casos de uso de las pantallas y del acceso a datos.
+El sistema utiliza una arquitectura de tres capas: presentación, lógica de negocio y datos.
 
-## 7. Decisiones técnicas
-- PostgreSQL es la base relacional principal. Las restricciones `CHECK`, claves únicas e índices apoyan la integridad y las consultas.
-- La búsqueda por código usa una columna `UNIQUE`, respaldada por un índice de PostgreSQL.
-- El ordenamiento en memoria utiliza `sorted()` (Timsort); no se implementan burbuja, selección ni inserción.
-- El resumen por máquina usa un diccionario de acumulación, evitando búsquedas repetidas en listas.
-- La auditoría registra usuario, acción, entidad, identificador, detalle y fecha.
-- Exportaciones disponibles: CSV, JSON, TXT, BIN (formato binario propio con firma `CIM1`) y PDF.
-- La contraseña se procesa con PBKDF2-HMAC-SHA256.
+## 7. Características principales
 
-## 8. Formato de orden
-- Código: `CIM-001` (se admiten códigos con más dígitos).
-- Máquina: `M-01`.
-- Fecha: `AAAA-MM-DD HH:MM`.
-- Restricciones: procesadas > 0; 0 <= merma <= procesadas; fin > inicio.
+- Registro, consulta, modificación y eliminación de órdenes.
+- Validación de códigos, máquinas, cantidades y fechas.
+- Cálculo de unidades buenas, merma y duración.
+- Búsqueda mediante código único e índices de PostgreSQL.
+- Ordenamiento eficiente mediante `sorted()`.
+- Resumen de producción por máquina.
+- Autenticación con contraseñas protegidas mediante PBKDF2-HMAC-SHA256.
+- Auditoría de operaciones.
+- Exportación de reportes a CSV, JSON, TXT, BIN y PDF.
 
-## 9. Flujo Git recomendado para un equipo
-Ramas: `main` (entrega estable), `desarrollo` (integración), `modulo-base-datos`, `modulo-aplicacion` y `modulo-reportes`.
+## 8. Flujo de trabajo Git
 
-Cada integrante trabaja en su rama, realiza commits con cambios reales y abre una solicitud de incorporación hacia `desarrollo`. Se revisa y prueba antes de fusionar. Al cerrar el proyecto, `desarrollo` se integra en `main`.
+Ramas del proyecto:
 
-## 10. Limitaciones y mejoras futuras
-Es un prototipo de consola académico. Para un despliegue real se necesitarían, entre otros, gestión de roles/permisos, recuperación de contraseña, política de copias de seguridad, configuración segura de secretos, pruebas de integración automatizadas y una interfaz gráfica/web. El PDF requiere la dependencia ReportLab instalada.
+- `main`: versión estable.
+- `desarrollo`: integración del equipo.
+- `modulo-base-datos`: trabajo relacionado con la base de datos.
+- `modulo-aplicacion`: desarrollo de la aplicación.
+- `modulo-reportes`: reportes y exportaciones.
 
-# Cimagraf-Control-Produccion
-Sistema modular para el control de órdenes de producción, registro de merma, tiempos de máquina, auditoría y exportación de información.
- 4f9e6dd2fff0b91499505df50ef5f2017ba45494
+Cada integrante debe trabajar en su rama, realizar commits y proponer la integración de sus cambios hacia `desarrollo`. Después de revisar y probar el proyecto, se integrará la versión final en `main`.
+
+## 9. Consideraciones
+
+Este proyecto es un prototipo académico. Para su uso real se requieren pruebas de integración, configuración segura, copias de seguridad y controles adicionales de acceso.
+
+La información de ejemplo debe reemplazarse por datos reales verificados y autorizados.
+
+---
+
+**Repositorio:** Cimagraf-Control-Produccion  
+**Tecnologías:** Python, PostgreSQL y Git/GitHub.
