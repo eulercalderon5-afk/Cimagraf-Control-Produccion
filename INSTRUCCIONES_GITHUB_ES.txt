@@ -1,0 +1,40 @@
+GUÍA GITHUB EN ESPAÑOL
+
+A. CREAR REPOSITORIO
+1. Entra a https://github.com e inicia sesión.
+2. Pulsa el signo + (arriba a la derecha) y elige Nuevo repositorio.
+3. Nombre: Cimagraf-Control-Produccion.
+4. Descripción: Sistema modular para controlar órdenes, merma, tiempos, auditoría y exportación.
+5. Elige Público (si el docente debe revisarlo).
+6. Marca Añadir un archivo README.
+7. En .gitignore elige Python.
+8. Pulsa Crear repositorio.
+
+B. SUBIR ESTA CARPETA DESDE LA PÁGINA WEB
+1. Abre el repositorio y pulsa Añadir archivo > Cargar archivos.
+2. Descomprime el ZIP en tu PC.
+3. Arrastra el contenido de la carpeta Cimagraf_Final (no la carpeta contenedora) al área de carga.
+4. En el mensaje de confirmación escribe: Estructura inicial modular del sistema Cimagraf.
+5. Selecciona Confirmar cambios directamente en la rama main SOLO para la carga inicial.
+6. Después crea la rama desarrollo desde el selector de ramas: escribe desarrollo y selecciona Crear rama desde main.
+
+C. CREAR RAMAS DE TRABAJO
+1. Selecciona desarrollo en el selector de ramas.
+2. Abre el selector, escribe modulo-base-datos y pulsa Crear rama desde desarrollo.
+3. Repite desde desarrollo para modulo-aplicacion y modulo-reportes.
+4. Asigna cada rama a un integrante. Eviten editar el mismo archivo al mismo tiempo.
+
+D. TRABAJO Y FUSIÓN
+1. Cada integrante selecciona su rama antes de editar/subir archivos.
+2. Sube únicamente los archivos de su responsabilidad.
+3. Escribe un mensaje de commit que describa el cambio real.
+4. Abre Solicitudes de incorporación de cambios > Nueva solicitud de incorporación.
+5. Rama de destino: desarrollo. Rama de origen: la rama del integrante.
+6. Revisa los archivos modificados y pulsa Crear solicitud de incorporación.
+7. Tras probar el código, pulsa Fusionar solicitud de incorporación.
+8. Al finalizar, crea otra solicitud desde desarrollo hacia main.
+
+E. SEGURIDAD
+- Nunca subas .env, contraseñas, claves ni datos personales reales.
+- No inventes commits ni contribuciones. Cada integrante debe realizar trabajo verificable.
+- No trabajen todos directamente sobre main.
