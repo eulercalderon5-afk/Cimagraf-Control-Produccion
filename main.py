@@ -1,7 +1,8 @@
-﻿import json
+import json
 import tkinter as tk
 from tkinter import ttk, messagebox
 from pathlib import Path
+from PIL import Image, ImageTk
 
 from controllers.autenticacion import iniciar_sesion
 from controllers import ordenes, reportes
@@ -14,7 +15,7 @@ COLOR_AZUL = "#2878D0"
 COLOR_TEXTO = "#26364A"
 COLOR_SECUNDARIO = "#718096"
 
-FORMATO_FECHA = "%d-%m-%Y %H:%M"
+FORMATO_FECHA = "%d/%m/%Y %H:%M"
 
 
 def configurar_estilo(raiz):
@@ -50,7 +51,7 @@ def configurar_estilo(raiz):
 
 def mostrar_login():
     ventana = tk.Tk()
-    ventana.title("CIMAGRAF | Acceso")
+    ventana.title("CIMA GRAF S.A.C. | Acceso")
     ventana.geometry("430x500")
     ventana.resizable(False, False)
     ventana.configure(bg=COLOR_LATERAL)
@@ -63,7 +64,7 @@ def mostrar_login():
     panel.pack(fill="both", expand=True, padx=25, pady=25)
 
     tk.Label(
-        panel, text="CIMAGRAF",
+        panel, text="CIMA GRAF",
         font=("Segoe UI", 27, "bold"),
         fg="white", bg="#20334F"
     ).pack(pady=(15, 4))
@@ -175,7 +176,7 @@ class Aplicacion:
     def __init__(self, usuario):
         self.usuario = usuario
         self.raiz = tk.Tk()
-        self.raiz.title("CIMAGRAF | Control de producción")
+        self.raiz.title("CIMA GRAF S.A.C. | Control de producción")
         self.raiz.geometry("1200x730")
         self.raiz.minsize(1000, 620)
         self.raiz.configure(bg=COLOR_FONDO)
@@ -192,7 +193,7 @@ class Aplicacion:
         lateral.pack_propagate(False)
 
         tk.Label(
-            lateral, text="CIMAGRAF",
+            lateral, text="CIMA GRAF",
             font=("Segoe UI", 22, "bold"),
             fg="white", bg=COLOR_LATERAL
         ).pack(pady=(30, 2))
@@ -348,102 +349,268 @@ class Aplicacion:
             ))
 
     def mostrar_inicio(self):
+        from pathlib import Path
+
         self.limpiar()
-        self.encabezado(
-            "Panel principal",
-            "Resumen general del control de producción."
+
+        contenedor = tk.Frame(self.contenido, bg=COLOR_FONDO)
+        contenedor.pack(fill="both", expand=True, padx=35, pady=25)
+
+        portada = tk.Frame(
+            contenedor, bg=COLOR_PANEL,
+            highlightbackground="#E2E8F0", highlightthickness=1
         )
+        portada.pack(fill="both", expand=True)
 
-        try:
-            filas = ordenes.listar()
-            total = len(filas)
-            procesadas = sum(o.procesadas for o in filas)
-            merma = sum(o.merma for o in filas)
-            porcentaje = (merma * 100 / procesadas) if procesadas else 0
-        except Exception as error:
-            messagebox.showerror("Error", str(error))
-            return
+        centro = tk.Frame(portada, bg=COLOR_PANEL)
+        centro.pack(expand=True, pady=15)
 
-        tarjetas = tk.Frame(self.contenido, bg=COLOR_FONDO)
-        tarjetas.pack(fill="x", padx=24, pady=8)
+        ruta_logo = Path(__file__).resolve().parent / "assets" / "logo_cimagraf.jpeg"
+        self.logo_imagen = None
 
-        self.tarjeta(tarjetas, "Órdenes registradas", total, "Registros actuales")
-        self.tarjeta(tarjetas, "Unidades procesadas", procesadas, "Producción acumulada")
-        self.tarjeta(tarjetas, "Unidades de merma", merma, "Pérdidas acumuladas")
-        self.tarjeta(tarjetas, "Porcentaje de merma", f"{porcentaje:.2f}%", "Sobre unidades procesadas")
+        if ruta_logo.exists():
+            try:
+                imagen = Image.open(ruta_logo).convert("RGB")
+                imagen.thumbnail((250, 155), Image.Resampling.LANCZOS)
+                self.logo_imagen = ImageTk.PhotoImage(imagen)
+                tk.Label(
+                    centro, image=self.logo_imagen,
+                    bg=COLOR_PANEL
+                ).pack(pady=(5, 14))
+            except Exception:
+                tk.Label(
+                    centro, text="CIMA GRAF",
+                    font=("Segoe UI", 25, "bold"),
+                    bg=COLOR_PANEL, fg=COLOR_LATERAL
+                ).pack(pady=15)
+        else:
+            tk.Label(
+                centro, text="CIMA GRAF",
+                font=("Segoe UI", 25, "bold"),
+                bg=COLOR_PANEL, fg=COLOR_LATERAL
+            ).pack(pady=15)
 
         tk.Label(
-            self.contenido, text="Órdenes recientes",
-            font=("Segoe UI", 13, "bold"),
-            fg=COLOR_TEXTO, bg=COLOR_FONDO
-        ).pack(anchor="w", padx=30, pady=(22, 5))
+            centro, text="CIMA GRAF S.A.C.",
+            font=("Segoe UI", 24, "bold"),
+            bg=COLOR_PANEL, fg=COLOR_LATERAL
+        ).pack(pady=(0, 5))
 
-        columnas = [
-            ("codigo", "Código", 110),
-            ("maquina", "Máquina", 90),
-            ("procesadas", "Procesadas", 110),
-            ("buenas", "Buenas", 100),
-            ("merma", "Merma", 90),
-            ("porcentaje", "% Merma", 100),
-            ("inicio", "Inicio", 145),
-            ("fin", "Fin", 145),
-            ("minutos", "Minutos", 90),
-        ]
+        tk.Label(
+            centro, text="SOLUCIONES GRÁFICAS",
+            font=("Segoe UI", 11, "bold"),
+            bg=COLOR_PANEL, fg=COLOR_AZUL
+        ).pack(pady=3)
 
-        tabla = self.crear_tabla(self.contenido, columnas, 8)
-        self.cargar_ordenes(tabla, filas[:10])
+        tk.Label(
+            centro,
+            text="Sistema de gestión y control de producción",
+            font=("Segoe UI", 10),
+            bg=COLOR_PANEL, fg=COLOR_SECUNDARIO
+        ).pack(pady=(4, 20))
+
+        tk.Frame(
+            centro, bg="#E2E8F0", height=1, width=430
+        ).pack(pady=(0, 17))
+
+        tk.Label(
+            centro, text="HORARIO DE ATENCIÓN",
+            font=("Segoe UI", 11, "bold"),
+            bg=COLOR_PANEL, fg=COLOR_LATERAL
+        ).pack(pady=(0, 12))
+
+        horarios = tk.Frame(centro, bg=COLOR_PANEL)
+        horarios.pack()
+
+        for dia, horario in [
+            ("LUNES A VIERNES", "08:30 a. m. – 01:30 p. m.  |  03:00 p. m. – 08:00 p. m."),
+            ("SÁBADOS", "08:30 a. m. – 12:00 p. m."),
+            ("DOMINGOS", "No hay atención"),
+        ]:
+            fila = tk.Frame(horarios, bg=COLOR_PANEL)
+            fila.pack(fill="x", pady=5)
+
+            tk.Label(
+                fila, text=dia, width=19, anchor="w",
+                font=("Segoe UI", 9, "bold"),
+                bg=COLOR_PANEL, fg=COLOR_TEXTO
+            ).pack(side="left")
+
+            tk.Label(
+                fila, text=horario, anchor="w",
+                font=("Segoe UI", 9),
+                bg=COLOR_PANEL, fg=COLOR_SECUNDARIO
+            ).pack(side="left", padx=8)
+
+        tk.Label(
+            portada, text="CALIDAD • COMPROMISO • PRODUCCIÓN",
+            font=("Segoe UI", 8, "bold"),
+            bg=COLOR_PANEL, fg=COLOR_AZUL
+        ).pack(side="bottom", pady=18)
+
 
     def mostrar_ordenes(self):
         self.limpiar()
         self.encabezado(
-            "Consultar órdenes",
-            "Consulta y administra las órdenes de producción."
+            "Órdenes de producción",
+            "Busca, revisa y administra los registros de producción."
         )
 
+        ordenes_actuales = ordenes.listar()
+
         barra = tk.Frame(self.contenido, bg=COLOR_FONDO)
-        barra.pack(fill="x", padx=30, pady=5)
+        barra.pack(fill="x", padx=25, pady=8)
+
+        busqueda = tk.Entry(barra, font=("Segoe UI", 10), relief="solid", bd=1)
+        busqueda.pack(side="left", fill="x", expand=True, ipady=7)
+        busqueda.insert(0, "Buscar por código o máquina...")
+
+        maquinas = ["Todas"] + sorted(set(o.maquina for o in ordenes_actuales))
+        filtro = ttk.Combobox(
+            barra, values=maquinas, state="readonly", width=15
+        )
+        filtro.set("Todas")
+        filtro.pack(side="left", padx=10)
+
+
+        area = tk.Frame(self.contenido, bg=COLOR_FONDO)
+        area.pack(fill="both", expand=True, padx=25, pady=5)
+
+        lienzo = tk.Canvas(area, bg=COLOR_FONDO, highlightthickness=0)
+        scroll = ttk.Scrollbar(area, orient="vertical", command=lienzo.yview)
+        lista = tk.Frame(lienzo, bg=COLOR_FONDO)
+
+        ventana_lista = lienzo.create_window((0, 0), window=lista, anchor="nw")
+        lista.bind("<Configure>", lambda e: lienzo.configure(
+            scrollregion=lienzo.bbox("all")
+        ))
+        lienzo.bind("<Configure>", lambda e: lienzo.itemconfigure(
+            ventana_lista, width=e.width
+        ))
+        lienzo.configure(yscrollcommand=scroll.set)
+
+        lienzo.pack(side="left", fill="both", expand=True)
+        scroll.pack(side="right", fill="y")
+
+        def dibujar(event=None):
+            for widget in lista.winfo_children():
+                widget.destroy()
+
+            termino = busqueda.get().strip().lower()
+            maquina = filtro.get()
+
+            encontrados = [
+                o for o in ordenes_actuales
+                if (termino in o.codigo.lower() or termino in o.maquina.lower()
+                    or termino == "buscar por código o máquina...")
+                and (maquina == "Todas" or o.maquina == maquina)
+            ]
+
+            if not encontrados:
+                tk.Label(
+                    lista, text="No se encontraron Órdenes.",
+                    bg=COLOR_FONDO, fg=COLOR_SECUNDARIO,
+                    font=("Segoe UI", 11)
+                ).pack(pady=35)
+                return
+
+            for o in encontrados:
+                tarjeta = tk.Frame(
+                    lista, bg=COLOR_PANEL,
+                    highlightbackground="#E2E8F0", highlightthickness=1
+                )
+                tarjeta.pack(fill="x", pady=5)
+
+                superior = tk.Frame(tarjeta, bg=COLOR_PANEL)
+                superior.pack(fill="x", padx=15, pady=(12, 5))
+
+                tk.Label(
+                    superior, text=o.codigo,
+                    font=("Segoe UI", 12, "bold"),
+                    bg=COLOR_PANEL, fg=COLOR_LATERAL
+                ).pack(side="left")
+
+                tk.Label(
+                    superior, text=o.maquina,
+                    font=("Segoe UI", 9, "bold"),
+                    bg="#EAF2FC", fg=COLOR_AZUL, padx=9, pady=4
+                ).pack(side="left", padx=12)
+
+                tk.Label(
+                    superior, text=f"Merma: {o.merma_pct:.2f}%",
+                    font=("Segoe UI", 9, "bold"),
+                    bg=COLOR_PANEL,
+                    fg="#C45151" if o.merma_pct >= 10 else COLOR_SECUNDARIO
+                ).pack(side="right")
+
+                datos = tk.Frame(tarjeta, bg=COLOR_PANEL)
+                datos.pack(fill="x", padx=15, pady=5)
+
+                for titulo, valor in [
+                    ("Procesadas", f"{o.procesadas:,}"),
+                    ("Unidades buenas", f"{o.buenas:,}"),
+                    ("Merma", f"{o.merma:,}"),
+                    ("Duración", f"{o.minutos:.0f} min"),
+                ]:
+                    bloque = tk.Frame(datos, bg=COLOR_PANEL)
+                    bloque.pack(side="left", expand=True, anchor="w")
+                    tk.Label(
+                        bloque, text=titulo, bg=COLOR_PANEL,
+                        fg=COLOR_SECUNDARIO, font=("Segoe UI", 8)
+                    ).pack(anchor="w")
+                    tk.Label(
+                        bloque, text=valor, bg=COLOR_PANEL,
+                        fg=COLOR_TEXTO, font=("Segoe UI", 10, "bold")
+                    ).pack(anchor="w", pady=3)
+
+                acciones = tk.Frame(tarjeta, bg=COLOR_PANEL)
+                acciones.pack(fill="x", padx=15, pady=(5, 12))
+
+                tk.Button(
+                    acciones, text="Ver detalle",
+                    command=lambda c=o.codigo: self.ver_detalle(c),
+                    relief="flat", fg=COLOR_AZUL, bg="#EAF2FC"
+                ).pack(side="left", padx=(0, 6))
+
+                tk.Button(
+                    acciones, text="Modificar",
+                    command=lambda c=o.codigo: self.abrir_registro(
+                        ordenes.consultar(c)
+                    ),
+                    relief="flat", bg="#F1F4F8", fg=COLOR_TEXTO
+                ).pack(side="left", padx=6)
+
+                def eliminar(codigo=o.codigo):
+                    if messagebox.askyesno(
+                        "Confirmar eliminación",
+                        f"¿Deseas eliminar la orden {codigo}?"
+                    ):
+                        try:
+                            ordenes.eliminar(codigo, self.usuario)
+                            messagebox.showinfo(
+                                "Orden eliminada", "La orden se eliminó correctamente."
+                            )
+                            self.mostrar_ordenes()
+                        except Exception as error:
+                            messagebox.showerror("Error", str(error))
+
+                tk.Button(
+                    acciones, text="Eliminar",
+                    command=eliminar, relief="flat",
+                    bg="#FCEBEC", fg="#B83D45"
+                ).pack(side="right")
 
         tk.Button(
-            barra, text="Nueva orden",
-            command=self.abrir_registro,
-            bg=COLOR_AZUL, fg="white",
-            relief="flat", padx=15, pady=8
-        ).pack(side="left")
+            barra, text="Buscar", command=dibujar,
+            bg=COLOR_AZUL, fg="white", relief="flat",
+            font=("Segoe UI", 9, "bold"), padx=22, pady=8
+        ).pack(side="right", padx=(8, 0))
 
-        tk.Button(
-            barra, text="Modificar seleccionada",
-            command=lambda: self.modificar_seleccion(tabla),
-            padx=12
-        ).pack(side="left", padx=8)
+        busqueda.bind("<KeyRelease>", dibujar)
+        busqueda.bind("<Return>", dibujar)
+        filtro.bind("<<ComboboxSelected>>", dibujar)
+        dibujar()
 
-        tk.Button(
-            barra, text="Eliminar seleccionada",
-            command=lambda: self.eliminar_seleccion(tabla),
-            padx=12
-        ).pack(side="left")
-
-        columnas = [
-            ("codigo", "Código", 100),
-            ("maquina", "Máquina", 85),
-            ("procesadas", "Procesadas", 100),
-            ("buenas", "Buenas", 90),
-            ("merma", "Merma", 80),
-            ("porcentaje", "% Merma", 90),
-            ("inicio", "Inicio", 140),
-            ("fin", "Fin", 140),
-            ("minutos", "Minutos", 85),
-        ]
-
-        tabla = self.crear_tabla(self.contenido, columnas, 15)
-        self.cargar_ordenes(tabla, ordenes.listar())
-
-        def seleccionar(event=None):
-            elegido = tabla.selection()
-            if elegido:
-                valores = tabla.item(elegido[0], "values")
-                self.ver_detalle(valores[0])
-
-        tabla.bind("<Double-1>", seleccionar)
 
     def ver_detalle(self, codigo):
         orden = ordenes.consultar(codigo)
@@ -493,8 +660,8 @@ class Aplicacion:
             ("Máquina (M-01)", "maquina"),
             ("Unidades procesadas", "procesadas"),
             ("Unidades de merma", "merma"),
-            ("Inicio (DD-MM-AAAA HH:MM)", "inicio"),
-            ("Fin (DD-MM-AAAA HH:MM)", "fin"),
+            ("Inicio (DD/MM/AAAA HH:MM)", "inicio"),
+            ("Fin (DD/MM/AAAA HH:MM)", "fin"),
         ]
 
         entradas = {}
@@ -596,130 +763,321 @@ class Aplicacion:
     def mostrar_merma(self):
         self.limpiar()
         self.encabezado(
-            "Órdenes por porcentaje de merma",
-            "Órdenes ordenadas de mayor a menor porcentaje de merma."
+            "Control de merma",
+            "Identifica las Órdenes con mayor proporción de unidades desperdiciadas."
         )
 
-        columnas = [
-            ("codigo", "Código", 110),
-            ("maquina", "Máquina", 100),
-            ("procesadas", "Procesadas", 120),
-            ("buenas", "Buenas", 110),
-            ("merma", "Merma", 100),
-            ("porcentaje", "% Merma", 120),
-            ("inicio", "Inicio", 150),
-            ("fin", "Fin", 150),
-            ("minutos", "Minutos", 100),
-        ]
+        filas = reportes.ordenes_por_merma()
 
-        tabla = self.crear_tabla(self.contenido, columnas, 18)
-        self.cargar_ordenes(tabla, reportes.ordenes_por_merma())
+        resumen = tk.Frame(self.contenido, bg=COLOR_FONDO)
+        resumen.pack(fill="x", padx=25, pady=10)
+
+        total = len(filas)
+        merma_total = sum(o.merma for o in filas)
+        procesadas = sum(o.procesadas for o in filas)
+        porcentaje = merma_total * 100 / procesadas if procesadas else 0
+
+        for titulo, valor in [
+            ("Órdenes revisadas", total),
+            ("Unidades de merma", f"{merma_total:,}"),
+            ("Merma acumulada", f"{porcentaje:.2f}%"),
+        ]:
+            tarjeta = tk.Frame(
+                resumen, bg=COLOR_PANEL,
+                highlightbackground="#E2E8F0", highlightthickness=1
+            )
+            tarjeta.pack(side="left", expand=True, fill="x", padx=5)
+            tk.Label(
+                tarjeta, text=titulo, bg=COLOR_PANEL,
+                fg=COLOR_SECUNDARIO, font=("Segoe UI", 9)
+            ).pack(anchor="w", padx=14, pady=(10, 3))
+            tk.Label(
+                tarjeta, text=str(valor), bg=COLOR_PANEL,
+                fg=COLOR_AZUL, font=("Segoe UI", 18, "bold")
+            ).pack(anchor="w", padx=14, pady=(0, 10))
+
+        area = tk.Frame(self.contenido, bg=COLOR_FONDO)
+        area.pack(fill="both", expand=True, padx=25, pady=8)
+
+        lienzo = tk.Canvas(area, bg=COLOR_FONDO, highlightthickness=0)
+        scroll = ttk.Scrollbar(area, orient="vertical", command=lienzo.yview)
+        lista = tk.Frame(lienzo, bg=COLOR_FONDO)
+        ventana = lienzo.create_window((0, 0), window=lista, anchor="nw")
+
+        lista.bind("<Configure>", lambda e: lienzo.configure(
+            scrollregion=lienzo.bbox("all")
+        ))
+        lienzo.bind("<Configure>", lambda e: lienzo.itemconfigure(
+            ventana, width=e.width
+        ))
+        lienzo.configure(yscrollcommand=scroll.set)
+        lienzo.pack(side="left", fill="both", expand=True)
+        scroll.pack(side="right", fill="y")
+
+        if not filas:
+            tk.Label(
+                lista, text="No hay Órdenes registradas.",
+                bg=COLOR_FONDO, fg=COLOR_SECUNDARIO
+            ).pack(pady=30)
+            return
+
+        for o in filas:
+            if o.merma_pct >= 10:
+                nivel, color, fondo = "Mayor porcentaje", "#B83D45", "#FCEBEC"
+            elif o.merma_pct >= 5:
+                nivel, color, fondo = "Porcentaje intermedio", "#A66B17", "#FFF4DF"
+            else:
+                nivel, color, fondo = "Menor porcentaje", "#27845C", "#E8F5EE"
+
+            tarjeta = tk.Frame(
+                lista, bg=COLOR_PANEL,
+                highlightbackground="#E2E8F0", highlightthickness=1
+            )
+            tarjeta.pack(fill="x", pady=5)
+
+            encabezado = tk.Frame(tarjeta, bg=COLOR_PANEL)
+            encabezado.pack(fill="x", padx=15, pady=10)
+
+            tk.Label(
+                encabezado, text=f"{o.codigo}  |  {o.maquina}",
+                bg=COLOR_PANEL, fg=COLOR_TEXTO,
+                font=("Segoe UI", 11, "bold")
+            ).pack(side="left")
+
+            tk.Label(
+                encabezado, text=f"{o.merma_pct:.2f}%  |  {nivel}",
+                bg=fondo, fg=color, padx=9, pady=5,
+                font=("Segoe UI", 9, "bold")
+            ).pack(side="right")
+
+            tk.Label(
+                tarjeta,
+                text=f"Procesadas: {o.procesadas:,}     "
+                     f"Buenas: {o.buenas:,}     Merma: {o.merma:,}",
+                bg=COLOR_PANEL, fg=COLOR_SECUNDARIO,
+                font=("Segoe UI", 9)
+            ).pack(anchor="w", padx=15, pady=(0, 10))
+
+            tk.Button(
+                tarjeta, text="Consultar orden",
+                command=lambda c=o.codigo: self.ver_detalle(c),
+                bg="#EAF2FC", fg=COLOR_AZUL, relief="flat"
+            ).pack(anchor="e", padx=15, pady=(0, 10))
+
 
     def mostrar_resumen(self):
         self.limpiar()
         self.encabezado(
             "Resumen por máquina",
-            "Indicadores acumulados de producción para cada máquina."
+            "Comparación de producción, unidades buenas y merma."
         )
 
-        columnas = [
-            ("maquina", "Máquina", 120),
-            ("ordenes", "Órdenes", 110),
-            ("procesadas", "Procesadas", 150),
-            ("merma", "Merma", 130),
-            ("porcentaje", "% Merma", 130),
-            ("minutos", "Minutos", 130),
-        ]
+        resumen = reportes.resumen_maquinas()
+        if not resumen:
+            tk.Label(
+                self.contenido, text="Todavía no hay datos para mostrar.",
+                bg=COLOR_FONDO, fg=COLOR_SECUNDARIO,
+                font=("Segoe UI", 11)
+            ).pack(pady=50)
+            return
 
-        tabla = self.crear_tabla(self.contenido, columnas, 15)
+        total_procesadas = sum(d["procesadas"] for d in resumen.values())
+        total_merma = sum(d["merma"] for d in resumen.values())
+        total_buenas = total_procesadas - total_merma
 
-        for maquina, datos in reportes.resumen_maquinas().items():
-            tabla.insert("", "end", values=(
-                maquina,
-                datos["ordenes"],
-                datos["procesadas"],
-                datos["merma"],
-                f"{datos['merma_pct']:.2f}%",
-                f"{datos['minutos']:.2f}"
-            ))
+        indicadores = tk.Frame(self.contenido, bg=COLOR_FONDO)
+        indicadores.pack(fill="x", padx=25, pady=10)
+
+        for titulo, valor, color in [
+            ("Máquinas registradas", len(resumen), COLOR_AZUL),
+            ("Unidades procesadas", f"{total_procesadas:,}", COLOR_LATERAL),
+            ("Unidades buenas", f"{total_buenas:,}", "#27845C"),
+            ("Unidades de merma", f"{total_merma:,}", "#C45151"),
+        ]:
+            tarjeta = tk.Frame(
+                indicadores, bg=COLOR_PANEL,
+                highlightbackground="#E2E8F0", highlightthickness=1
+            )
+            tarjeta.pack(side="left", fill="both", expand=True, padx=5)
+            tk.Label(
+                tarjeta, text=titulo, bg=COLOR_PANEL,
+                fg=COLOR_SECUNDARIO, font=("Segoe UI", 8)
+            ).pack(anchor="w", padx=12, pady=(12, 3))
+            tk.Label(
+                tarjeta, text=str(valor), bg=COLOR_PANEL,
+                fg=color, font=("Segoe UI", 18, "bold")
+            ).pack(anchor="w", padx=12, pady=(0, 12))
+
+        zona = tk.Frame(self.contenido, bg=COLOR_PANEL)
+        zona.pack(fill="both", expand=True, padx=30, pady=12)
+
+        tk.Label(
+            zona, text="COMPARACIÓN DE PRODUCCIÓN POR M?QUINA",
+            bg=COLOR_PANEL, fg=COLOR_TEXTO,
+            font=("Segoe UI", 10, "bold")
+        ).pack(anchor="w", padx=18, pady=15)
+
+        maximo = max(d["procesadas"] for d in resumen.values()) or 1
+
+        for maquina, d in resumen.items():
+            fila = tk.Frame(zona, bg=COLOR_PANEL)
+            fila.pack(fill="x", padx=18, pady=9)
+
+            tk.Label(
+                fila, text=maquina, width=12, anchor="w",
+                bg=COLOR_PANEL, fg=COLOR_TEXTO,
+                font=("Segoe UI", 9, "bold")
+            ).pack(side="left")
+
+            barras = tk.Frame(fila, bg="#EDF1F6", height=18)
+            barras.pack(side="left", fill="x", expand=True, padx=10)
+            barras.pack_propagate(False)
+
+            proporcion = d["procesadas"] / maximo
+            ancho_total = max(1, int(400 * proporcion))
+            buenas = d["procesadas"] - d["merma"]
+            ancho_buenas = int(ancho_total * buenas / d["procesadas"]) if d["procesadas"] else 0
+
+            tk.Frame(
+                barras, bg="#2878D0", width=ancho_buenas
+            ).pack(side="left", fill="y")
+            tk.Frame(
+                barras, bg="#D65B61",
+                width=max(0, ancho_total - ancho_buenas)
+            ).pack(side="left", fill="y")
+
+            tk.Label(
+                fila, text=f'{d["procesadas"]:,} unidades',
+                width=15, anchor="e", bg=COLOR_PANEL,
+                fg=COLOR_TEXTO, font=("Segoe UI", 8)
+            ).pack(side="right")
+
+            tk.Label(
+                zona,
+                text=f'{d["ordenes"]} Órdenes  |  {buenas:,} buenas  |  '
+                     f'{d["merma"]:,} merma  |  {d["merma_pct"]:.2f}% de merma',
+                bg=COLOR_PANEL, fg=COLOR_SECUNDARIO,
+                font=("Segoe UI", 8)
+            ).pack(anchor="w", padx=145)
+
+        tk.Label(
+            zona, text="Azul: unidades buenas     Rojo: unidades de merma",
+            bg=COLOR_PANEL, fg=COLOR_SECUNDARIO,
+            font=("Segoe UI", 8)
+        ).pack(anchor="w", padx=18, pady=15)
+
 
     def mostrar_auditoria(self):
         self.limpiar()
         self.encabezado(
             "Historial de auditoría",
-            "Registro de las operaciones realizadas en el sistema."
+            "Consulta cronológicamente las operaciones realizadas en el sistema."
         )
-
-        marco = tk.Frame(self.contenido, bg=COLOR_PANEL)
-        marco.pack(fill="both", expand=True, padx=30, pady=10)
-
-        texto = tk.Text(
-            marco, font=("Consolas", 9),
-            bg="white", fg=COLOR_TEXTO,
-            relief="flat", padx=15, pady=12,
-            wrap="word"
-        )
-        barra = ttk.Scrollbar(marco, command=texto.yview)
-        texto.configure(yscrollcommand=barra.set)
-
-        texto.pack(side="left", fill="both", expand=True)
-        barra.pack(side="right", fill="y")
-
-        nombres = {
-            "codigo": "Código",
-            "maquina": "Máquina",
-            "procesadas": "Unidades procesadas",
-            "buenas": "Unidades buenas",
-            "merma": "Unidades de merma",
-            "merma_pct": "Porcentaje de merma",
-            "inicio": "Fecha de inicio",
-            "fin": "Fecha de finalización",
-            "minutos": "Duración (minutos)"
-        }
 
         registros = ordenes.historial()
 
+        area = tk.Frame(self.contenido, bg=COLOR_FONDO)
+        area.pack(fill="both", expand=True, padx=25, pady=10)
+
+        lienzo = tk.Canvas(area, bg=COLOR_FONDO, highlightthickness=0)
+        scroll = ttk.Scrollbar(area, orient="vertical", command=lienzo.yview)
+        lista = tk.Frame(lienzo, bg=COLOR_FONDO)
+        ventana = lienzo.create_window((0, 0), window=lista, anchor="nw")
+
+        lista.bind("<Configure>", lambda e: lienzo.configure(
+            scrollregion=lienzo.bbox("all")
+        ))
+        lienzo.bind("<Configure>", lambda e: lienzo.itemconfigure(
+            ventana, width=e.width
+        ))
+        lienzo.configure(yscrollcommand=scroll.set)
+        lienzo.pack(side="left", fill="both", expand=True)
+        scroll.pack(side="right", fill="y")
+
         if not registros:
-            texto.insert("end", "No existen registros de actividad.")
-        else:
-            for numero, fila in enumerate(registros, 1):
-                try:
-                    detalle = json.loads(fila["detalle"])
-                except (TypeError, ValueError):
-                    detalle = {}
+            tk.Label(
+                lista, text="Todavía no existen actividades registradas.",
+                bg=COLOR_FONDO, fg=COLOR_SECUNDARIO,
+                font=("Segoe UI", 11)
+            ).pack(pady=35)
+            return
 
-                texto.insert("end", f"REGISTRO N. {numero}\n")
-                texto.insert("end", "=" * 65 + "\n")
-                texto.insert("end", f"Fecha: {fila['fecha']}\n")
-                texto.insert("end", f"Usuario: {fila['usuario'] or 'Usuario eliminado'}\n")
-                texto.insert("end", f"Acción: {fila['accion']}\n")
+        nombres = {
+            "codigo": "Código", "maquina": "Máquina",
+            "procesadas": "Unidades procesadas",
+            "buenas": "Unidades buenas", "merma": "Unidades de merma",
+            "merma_pct": "Porcentaje de merma",
+            "inicio": "Inicio", "fin": "Finalización",
+            "minutos": "Duración (minutos)"
+        }
 
-                if fila["accion"] == "MODIFICAR" and "antes" in detalle:
-                    texto.insert("end", "\nCAMBIOS REALIZADOS:\n")
-                    antes = detalle["antes"]
-                    despues = detalle["despues"]
+        for numero, fila in enumerate(registros, 1):
+            try:
+                detalle = json.loads(fila["detalle"])
+            except (TypeError, ValueError):
+                detalle = {}
 
-                    for campo, nombre in nombres.items():
-                        anterior = antes.get(campo)
-                        nuevo = despues.get(campo)
+            tarjeta = tk.Frame(
+                lista, bg=COLOR_PANEL,
+                highlightbackground="#E2E8F0", highlightthickness=1
+            )
+            tarjeta.pack(fill="x", pady=5)
 
-                        if anterior != nuevo:
-                            if campo == "merma_pct":
-                                anterior = f"{anterior:.2f}%"
-                                nuevo = f"{nuevo:.2f}%"
-                            texto.insert("end", f"  {nombre}: {anterior} -> {nuevo}\n")
-                else:
-                    texto.insert("end", "\nDATOS DE LA ORDEN:\n")
-                    for campo, nombre in nombres.items():
-                        if campo in detalle:
-                            valor = detalle[campo]
-                            if campo == "merma_pct":
-                                valor = f"{valor:.2f}%"
-                            texto.insert("end", f"  {nombre}: {valor}\n")
+            superior = tk.Frame(tarjeta, bg=COLOR_PANEL)
+            superior.pack(fill="x", padx=15, pady=(12, 5))
 
-                texto.insert("end", "\n" + "-" * 65 + "\n\n")
+            tk.Label(
+                superior, text=f"ACTIVIDAD {numero:03d}",
+                bg=COLOR_PANEL, fg=COLOR_AZUL,
+                font=("Segoe UI", 9, "bold")
+            ).pack(side="left")
 
-        texto.configure(state="disabled")
+            tk.Label(
+                superior, text=str(fila["accion"]),
+                bg="#EAF2FC", fg=COLOR_AZUL,
+                font=("Segoe UI", 9, "bold"), padx=9, pady=4
+            ).pack(side="right")
+
+            tk.Label(
+                tarjeta, text=f"Fecha: {fila['fecha']}",
+                bg=COLOR_PANEL, fg=COLOR_TEXTO,
+                font=("Segoe UI", 9, "bold")
+            ).pack(anchor="w", padx=15, pady=3)
+
+            tk.Label(
+                tarjeta,
+                text=f"Usuario: {fila['usuario'] or 'Usuario eliminado'}",
+                bg=COLOR_PANEL, fg=COLOR_SECUNDARIO,
+                font=("Segoe UI", 9)
+            ).pack(anchor="w", padx=15, pady=3)
+
+            if "antes" in detalle and "despues" in detalle:
+                tk.Label(
+                    tarjeta, text="Cambios realizados:",
+                    bg=COLOR_PANEL, fg=COLOR_TEXTO,
+                    font=("Segoe UI", 9, "bold")
+                ).pack(anchor="w", padx=15, pady=(8, 3))
+
+                antes, despues = detalle["antes"], detalle["despues"]
+                for campo, nombre in nombres.items():
+                    if antes.get(campo) != despues.get(campo):
+                        tk.Label(
+                            tarjeta,
+                            text=f"• {nombre}: {antes.get(campo)}  →  {despues.get(campo)}",
+                            bg=COLOR_PANEL, fg=COLOR_SECUNDARIO,
+                            font=("Segoe UI", 9)
+                        ).pack(anchor="w", padx=25, pady=2)
+            else:
+                for campo, nombre in nombres.items():
+                    if campo in detalle:
+                        tk.Label(
+                            tarjeta, text=f"{nombre}: {detalle[campo]}",
+                            bg=COLOR_PANEL, fg=COLOR_SECUNDARIO,
+                            font=("Segoe UI", 9)
+                        ).pack(anchor="w", padx=15, pady=2)
+
+            tk.Frame(tarjeta, bg=COLOR_PANEL, height=8).pack()
+
 
     def exportar(self):
         try:
@@ -752,4 +1110,3 @@ def ejecutar():
 
 if __name__ == "__main__":
     ejecutar()
-

@@ -37,12 +37,12 @@ class PruebasCimagraf(unittest.TestCase):
 
     def test_validacion_orden(self):
         datos = {"codigo": "cim-010", "maquina": "m-01", "procesadas": "100", "merma": "5",
-                 "inicio": "01-10-2026 08:00", "fin": "01-10-2026 09:00"}
+                 "inicio": "01/10/2026 08:30", "fin": "01/10/2026 09:30"}
         self.assertEqual(validar_orden(datos).codigo, "CIM-010")
 
     def test_rechaza_periodo_incorrecto(self):
         datos = {"codigo": "CIM-010", "maquina": "M-01", "procesadas": "100", "merma": "5",
-                 "inicio": "01-10-2026 09:00", "fin": "01-10-2026 08:00"}
+                 "inicio": "01/10/2026 09:00", "fin": "01/10/2026 08:00"}
         with self.assertRaises(ValueError):
             validar_orden(datos)
 

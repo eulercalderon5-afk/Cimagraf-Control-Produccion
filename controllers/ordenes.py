@@ -37,6 +37,17 @@ def registrar(datos, usuario):
     with obtener_conexion() as conexion:
         conexion.execute("BEGIN IMMEDIATE")
 
+        existente = conexion.execute(
+            "SELECT 1 FROM ordenes WHERE codigo = ?",
+            (orden.codigo,),
+        ).fetchone()
+
+        if existente:
+            raise ValueError(
+                f"Ya existe una orden con el c?digo {orden.codigo}. "
+                "Ingresa un c?digo diferente."
+            )
+
         cursor = conexion.execute(
             """
             INSERT INTO ordenes(
