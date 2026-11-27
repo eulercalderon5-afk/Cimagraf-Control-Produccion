@@ -3,7 +3,7 @@ import re
 from datetime import datetime
 from models.orden import Orden
 
-FORMATO_FECHA = "%Y-%m-%d %H:%M"
+FORMATO_FECHA = "%d-%m-%Y %H:%M"
 
 
 def validar_codigo(texto):
@@ -27,7 +27,7 @@ def validar_orden(datos):
         inicio = datetime.strptime(str(datos["inicio"]).strip(), FORMATO_FECHA)
         fin = datetime.strptime(str(datos["fin"]).strip(), FORMATO_FECHA)
     except (KeyError, TypeError, ValueError):
-        raise ValueError("Revise cantidades y fechas. Formato: AAAA-MM-DD HH:MM.") from None
+        raise ValueError("Revise cantidades y fechas. Formato: DD-MM-AAAA HH:MM.") from None
     if procesadas <= 0 or not 0 <= merma <= procesadas:
         raise ValueError("Procesadas debe ser > 0 y merma debe estar entre 0 y procesadas.")
     if fin <= inicio:

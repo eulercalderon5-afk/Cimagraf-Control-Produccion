@@ -75,3 +75,6 @@ dmypy.json
 tempCodeRunnerFile.py
 *.log
 *.tmp
+
+# Respaldos temporales
+*.bak

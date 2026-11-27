@@ -1,3 +1,4 @@
+
 """Inicializa la base de datos y registra el primer administrador."""
 
 from getpass import getpass
@@ -7,14 +8,17 @@ from config.conexion import obtener_conexion
 from services.autenticacion import generar_hash
 
 
-def inicializar():
-    ruta_esquema = Path(__file__).with_name("esquema.sql")
-    esquema = ruta_esquema.read_text(encoding="utf-8")
+RUTA_ESQUEMA = Path(__file__).with_name("esquema.sql")
+
+
+def inicializar_bd():
+    if not RUTA_ESQUEMA.exists():
+        raise FileNotFoundError("No se encontró esquema.sql")
+
+    esquema = RUTA_ESQUEMA.read_text(encoding="utf-8")
 
     with obtener_conexion() as conexion:
-        for sentencia in esquema.split(";"):
-            if sentencia.strip():
-                conexion.execute(sentencia)
+        conexion.executescript(esquema)
 
         existe = conexion.execute(
             "SELECT 1 FROM usuarios LIMIT 1"
@@ -46,8 +50,8 @@ def inicializar():
                 (usuario, generar_hash(clave))
             )
 
-    print("\nBase de datos inicializada correctamente.")
+    print("Base de datos inicializada correctamente.")
 
 
 if __name__ == "__main__":
-    inicializar()
+    inicializar_bd()
