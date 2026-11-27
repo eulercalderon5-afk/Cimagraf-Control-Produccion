@@ -1,10 +1,27 @@
-"""Único punto de conexión con PostgreSQL."""
-import os
-import psycopg
+﻿
+"""Gestion centralizada de conexiones con SQLite."""
+
+import sqlite3
+from contextlib import contextmanager
+from pathlib import Path
 
 
+RUTA_BD = Path(__file__).resolve().parent.parent / "database" / "cimagraf.db"
+
+
+@contextmanager
 def obtener_conexion():
-    url = os.getenv("DATABASE_URL")
-    if not url:
-        raise RuntimeError("Configura DATABASE_URL en las variables de entorno.")
-    return psycopg.connect(url)
+    """Abre, confirma o revierte y cierra la conexion."""
+
+    conexion = sqlite3.connect(RUTA_BD, timeout=10)
+    conexion.row_factory = sqlite3.Row
+    conexion.execute("PRAGMA foreign_keys = ON")
+
+    try:
+        yield conexion
+        conexion.commit()
+    except Exception:
+        conexion.rollback()
+        raise
+    finally:
+        conexion.close()

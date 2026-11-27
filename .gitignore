@@ -68,9 +68,13 @@ dmypy.json
 # Bases de datos locales
 *.sqlite3
 *.sqlite3-journal
-db.sqlite3
+*.db
+*.db-journal
 
 # Archivos temporales
 tempCodeRunnerFile.py
 *.log
 *.tmp
+
+# Respaldos temporales
+*.bak

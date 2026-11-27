@@ -12,5 +12,5 @@ def resumen_maquinas():
     return resumen_por_maquina(listar())
 
 
-def generar_exportacion(formato):
-    return exportar(listar(), formato)
+def generar_exportacion():
+    return exportar(listar())

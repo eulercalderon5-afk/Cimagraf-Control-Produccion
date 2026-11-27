@@ -37,12 +37,12 @@ class PruebasCimagraf(unittest.TestCase):
 
     def test_validacion_orden(self):
         datos = {"codigo": "cim-010", "maquina": "m-01", "procesadas": "100", "merma": "5",
-                 "inicio": "2026-10-01 08:00", "fin": "2026-10-01 09:00"}
+                 "inicio": "01-10-2026 08:00", "fin": "01-10-2026 09:00"}
         self.assertEqual(validar_orden(datos).codigo, "CIM-010")
 
     def test_rechaza_periodo_incorrecto(self):
         datos = {"codigo": "CIM-010", "maquina": "M-01", "procesadas": "100", "merma": "5",
-                 "inicio": "2026-10-01 09:00", "fin": "2026-10-01 08:00"}
+                 "inicio": "01-10-2026 09:00", "fin": "01-10-2026 08:00"}
         with self.assertRaises(ValueError):
             validar_orden(datos)
 
@@ -55,14 +55,27 @@ class PruebasCimagraf(unittest.TestCase):
     def test_duracion(self):
         self.assertEqual(calcular_minutos(self.ordenes[0].inicio, self.ordenes[0].fin), 90)
 
-    def test_exportaciones_basicas(self):
-        with tempfile.TemporaryDirectory() as carpeta:
-            for formato in ("csv", "json", "txt", "bin"):
-                ruta = exportar(self.ordenes, formato, carpeta)
-                self.assertTrue(ruta.exists())
-                self.assertGreater(ruta.stat().st_size, 0)
-            self.assertTrue((Path(carpeta) / "ordenes.bin").read_bytes().startswith(b"CIM1"))
 
+    def test_exportaciones_basicas(self):
+        from openpyxl import load_workbook
+
+        with tempfile.TemporaryDirectory() as carpeta:
+            ruta = exportar(self.ordenes, carpeta, abrir=False)
+
+            self.assertTrue(ruta.exists())
+            self.assertGreater(ruta.stat().st_size, 0)
+            self.assertEqual(ruta.suffix, ".xlsx")
+
+            libro = load_workbook(ruta)
+            hoja = libro.active
+
+            self.assertEqual(hoja.title, "Registro de producción")
+            self.assertEqual(hoja.max_row, 4)
+            self.assertEqual(hoja.max_column, 9)
+            self.assertEqual(hoja.freeze_panes, "A2")
+            self.assertEqual(hoja["F2"].number_format, "0.00%")
+
+            libro.close()
 
 if __name__ == "__main__":
     unittest.main()

@@ -29,7 +29,7 @@ class Orden:
             "codigo": self.codigo, "maquina": self.maquina,
             "procesadas": self.procesadas, "merma": self.merma,
             "buenas": self.buenas, "merma_pct": self.merma_pct,
-            "inicio": self.inicio.isoformat(sep=" ", timespec="minutes"),
-            "fin": self.fin.isoformat(sep=" ", timespec="minutes"),
+            "inicio": self.inicio.strftime("%d-%m-%Y %H:%M"),
+            "fin": self.fin.strftime("%d-%m-%Y %H:%M"),
             "minutos": self.minutos,
         }

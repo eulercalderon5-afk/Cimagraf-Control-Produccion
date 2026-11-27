@@ -9,15 +9,15 @@ def pedir_orden():
         "maquina": input("Máquina (M-01): "),
         "procesadas": input("Unidades procesadas: "),
         "merma": input("Unidades de merma: "),
-        "inicio": input("Inicio (AAAA-MM-DD HH:MM): "),
-        "fin": input("Fin (AAAA-MM-DD HH:MM): "),
+        "inicio": input("Inicio (DD-MM-AAAA HH:MM): "),
+        "fin": input("Fin (DD-MM-AAAA HH:MM): "),
     }
 
 
 def mostrar_orden(orden):
     print(f"\nOrden: {orden.codigo} | Máquina: {orden.maquina}")
     print(f"Procesadas: {orden.procesadas} | Buenas: {orden.buenas} | Merma: {orden.merma} ({orden.merma_pct:.2f}%)")
-    print(f"Inicio: {orden.inicio:%Y-%m-%d %H:%M} | Fin: {orden.fin:%Y-%m-%d %H:%M} | Duración: {orden.minutos:.2f} min")
+    print(f"Inicio: {orden.inicio:%d-%m-%Y %H:%M} | Fin: {orden.fin:%d-%m-%Y %H:%M} | Duración: {orden.minutos:.2f} min")
 
 
 def mostrar_menu():

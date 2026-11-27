@@ -57,12 +57,30 @@ def ejecutar():
             elif opcion == "6":
                 mostrar_resumen()
             elif opcion == "7":
-                formato = input("Formato (csv/json/txt/bin/pdf): ").strip().lower()
-                ruta = reportes.generar_exportacion(formato)
+                ruta = reportes.generar_exportacion()
                 print(f"Archivo generado: {ruta}")
+            
             elif opcion == "8":
-                for fila in ordenes.historial():
-                    print(fila)
+                registros = ordenes.historial()
+
+                print("\n" + "=" * 105)
+                print("                 HISTORIAL DE AUDITORÍA")
+                print("=" * 105)
+
+                if not registros:
+                    print("No hay registros de auditoría.")
+                else:
+                    for fila in registros:
+                        print(f"\nFecha:       {fila['fecha']}")
+                        print(f"Usuario:     {fila['usuario'] or 'Usuario eliminado'}")
+                        print(f"Acción:      {fila['accion']}")
+                        print(f"Entidad:     {fila['entidad']}")
+                        print(f"ID afectado: {fila['entidad_id']}")
+                        print(f"Detalle:     {fila['detalle']}")
+                        print("-" * 105)
+
+                    print(f"\nTotal de registros: {len(registros)}")
+
             elif opcion == "9":
                 print("Sesión finalizada.")
                 break
